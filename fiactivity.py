@@ -2,11 +2,35 @@
 This script is super hacky and awful but it works until I have time to learn GraphQL basics and learn how to understand the undocumented API.
 The intention of this script is to fetch dog walks from the prior day and export to prometheus.
 """
+import datetime
 import json
 import logging
 import os
 import requests
 import sys
+
+def parse_walks(response: dict, time_range: int):
+    """Parse response for relevant walk data. time_range is an int representing num days"""
+    walks = []
+    for item in response['data']['currentUser']['fiFeed']['feedItems']:
+        if item['__typename'] == 'FiFeedActivityItem' and item['activity']['__typename'] == 'Walk' \
+            and (datetime.datetime.utcnow() - datetime.datetime.fromisoformat(item['timestamp'][0:-1])) > datetime.timedelta(1):
+            walk = { # 2022-12-12T01:11:08.249Z
+                'id': item['activity']['id'],
+                'start': item['activity']['start'],
+                'end': item['activity']['end'],
+                'areaName': item['activity']['areaName'],
+                'presentUser': item['activity']['presentUser'],
+                'presentUserString': item['activity']['presentUserString'],
+                'totalSteps': item['activity']['totalSteps'],
+                'obfuscated': item['activity']['obfuscated'],
+                'distance': item['activity']['distance'],
+                'mapPath': item['activity']['mapPath'],
+                'mapUrl': item['activity']['mapUrl'],
+                'petName': item['pet']['name']
+            }
+            walks.append(walk)
+    return walks
 
 email = os.environ.get('FI_EMAIL')
 password = os.environ.get('FI_PASSWORD')
@@ -86,4 +110,5 @@ except UnicodeDecodeError as e:
     logging.error('Encountered an exception while attempting to decode data response to json. Exception looked like %s, data was %s' % e, str(data_response))
     sys.exit(1)
 
-print(json.dumps(json_content))
+dog_walks = parse_walks(json_content, 1)
+print(json.dumps(dog_walks))
