@@ -128,6 +128,7 @@ def dump_data_to_sqlite(data: dict, time_range: int):
             else:
                 logging.error(f'Encountered a mapPath that was not of a known type. Full data: {json.dumps(item)}')
                 sys.exit(1)
+    con.commit()
 
 def fetch_activities():
     email = os.environ.get('FI_EMAIL')
