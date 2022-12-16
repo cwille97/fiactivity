@@ -85,11 +85,11 @@ def dump_data_to_sqlite(data: dict, time_range: int):
                 user_id = present_user.get('id')
             try:
                 query_str = f'INSERT INTO Activities VALUES (\"{item["activity"]["id"]}\", \"{item["activity"]["__typename"]}\", \"{start_time}\",' \
-                            f'\"{end_time}\", \"{item["activity"].get(["areaName"])}\", \"{user_name}\", \"{user_id}\", \"{item["activity"]["presentUserString"]}\"' \
+                            f'\"{end_time}\", \"{item["activity"].get("areaName")}\", \"{user_name}\", \"{user_id}\", \"{item["activity"]["presentUserString"]}\"' \
                             f', {item["activity"]["totalSteps"]}, {item["activity"]["obfuscated"]}, {item["activity"]["distance"]}, \"{item["pet"]["name"]}\",' \
                             f'\"{item["activity"]["mapUrl"]}\", \"{item["activity"]["mapPath"]["__typename"]}\");'
             except TypeError as e:
-                logging.error(f'Encountered a TypeError while attempting to format a SQL query to create a new Activity: {e}')
+                logging.error(f'Encountered a TypeError while attempting to format a SQL query to create a new Activity: {e}. Item was {json.dumps(item)}')
                 sys.exit(1)
             try:
                 cur.execute(query_str)
