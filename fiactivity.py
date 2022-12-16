@@ -113,9 +113,12 @@ def dump_data_to_sqlite(data: dict, time_range: int):
                 for location in item['activity']['mapPath']['locations']:
                     try:
                         timestamp = location['date'][0:-1].replace('T', ' ')
-                        query_str = f'INSERT INTO Locations (activity_id, timestamp, error_radius, latitude, longitude) VALUES (\"{item["activity"]["id"]}\", \"{timestamp}\", \"{location["errorRadius"]}\", \"{location["latitude"]}\", \"{location["longitude"]}\");'
+                        query_str = f'INSERT INTO Locations (activity_id, timestamp, error_radius, latitude, longitude) VALUES (\"{item["activity"]["id"]}\", \"{timestamp}\", \"{location["errorRadius"]}\", \"{location["position"]["latitude"]}\", \"{location["position"]["longitude"]}\");'
                     except TypeError as e:
-                        logging.error(f'Encountered a TypeError while attempting to format a SQL query for an UnMatchedPath. Query was {query_str}, exception was {e}')
+                        logging.error(f'Encountered a TypeError while attempting to format a SQL query for an UnmatchedPath. Query was {query_str}, exception was {e}')
+                        sys.exit(1)
+                    except KeyError as e:
+                        logging.error(f'Encountered a KeyError while attempting to format a SQL query for an UnmatchedPath. Query was {query_str}, exception was {e}. Item was {item}, location was {location}')
                         sys.exit(1)
                     try:
                         cur.execute(query_str)
