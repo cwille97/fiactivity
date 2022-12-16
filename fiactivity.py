@@ -15,6 +15,7 @@ FI_ACTIVITIES_GRAPHQL_QUERY = "query FiFeed($limit: Int, $pagingInstruction: Pag
 ACTIVITIES_TABLE = """
     CREATE TABLE Activities(
         activity_id TEXT PRIMARY KEY,
+        activity_type TEXT NOT NULL,
         start_time TEXT NOT NULL,
         end_time TEXT NOT NULL,
         area_name TEXT,
@@ -31,7 +32,7 @@ ACTIVITIES_TABLE = """
 """
 
 LOCATIONS_TABLE = """
-    CREATE TABLE Locatoins(
+    CREATE TABLE Locations(
         location_id TEXT PRIMARY KEY,
         activity_id VARCHAR NOT NULL,
         timestamp TEXT,
@@ -108,7 +109,7 @@ def dump_data_to_sqlite(data: dict, time_range: int):
                     except sqlite3.ProgrammingError as e:
                         logging.error(f'Encountered an exception while trying to INSERT a new Location. Query was {query_str}, exception was {e}')
                         sys.exit(1)
-            elif item['activity']['mapPath']['__typename'] == 'UnMatchedPath':
+            elif item['activity']['mapPath']['__typename'] == 'UnmatchedPath':
                 for location in item['activity']['mapPath']['locations']:
                     try:
                         timestamp = location['date'][0:-1].replace('T', ' ')
