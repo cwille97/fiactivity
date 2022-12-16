@@ -33,7 +33,6 @@ ACTIVITIES_TABLE = """
 
 LOCATIONS_TABLE = """
     CREATE TABLE Locations(
-        location_id TEXT PRIMARY KEY,
         activity_id VARCHAR NOT NULL,
         timestamp TEXT,
         error_radius REAL,
@@ -67,13 +66,14 @@ def export_walks_json(response: dict, time_range: int):
             walks.append(walk)
     return walks
 
-def dump_data_to_sqlite(data: dict, time_range: int):
+def dump_data_to_sqlite(data: dict):
     """Parse data for relevant walks and save to SQLite"""
     con = sqlite3.connect('fiactivity.db')
     cur = con.cursor()
     for item in data['data']['currentUser']['fiFeed']['feedItems']:
-        if item['__typename'] == 'FiFeedActivityItem' and item['activity']['__typename'] == 'Walk' \
-            and (datetime.datetime.utcnow() - datetime.datetime.fromisoformat(item['timestamp'][0:-1])) > datetime.timedelta(time_range):
+        if item['__typename'] == 'FiFeedActivityItem' and item['activity']['__typename'] == 'Walk':
+            if activity_exists(item['activity']['id'], cur): # skip this activity if we already have the ID in the DB
+                continue
             start_time = item['activity']['start'][0:-1].replace('T', ' '), # format to ISO8601 YYYY-MM-DD HH:MM:SS.SSS
             end_time = item['activity']['end'][0:-1].replace('T', ' ')
             present_user = item['activity'].get('presentUser')
@@ -99,6 +99,7 @@ def dump_data_to_sqlite(data: dict, time_range: int):
                 sys.exit(1)
             if item['activity']['mapPath']['__typename'] == 'MapMatchedPath':
                 for location in item['activity']['mapPath']['path']:
+
                     try:
                         query_str = f'INSERT INTO Locations (activity_id, latitude, longitude) VALUES (\"{item["activity"]["id"]}\", \"{location["latitude"]}\", \"{location["longitude"]}\");'
                     except TypeError as e:
@@ -129,6 +130,10 @@ def dump_data_to_sqlite(data: dict, time_range: int):
                 logging.error(f'Encountered a mapPath that was not of a known type. Full data: {json.dumps(item)}')
                 sys.exit(1)
     con.commit()
+
+def activity_exists(activity_id: str, cur: sqlite3.Cursor) -> bool:
+    cur.execute(f'SELECT EXISTS(SELECT 1 FROM Activities WHERE activity_id = \"{activity_id}\")')
+    return cur.fetchone()
 
 def fetch_activities():
     email = os.environ.get('FI_EMAIL')
@@ -216,7 +221,7 @@ def fetch_activities():
 
 def main():
     json_content = fetch_activities()
-    dump_data_to_sqlite(json_content, 1)
+    dump_data_to_sqlite(json_content)
 
 if __name__ == '__main__':
     main()
