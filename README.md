@@ -5,6 +5,7 @@ Quick and dirty script to fetch data from Fi and send to Prometheus. A much more
 **USE AT YOUR OWN RISK** there's always potential that this gets your account suspended since it might not be permitted by the EULA. That being said, it's my opinion that we should be able to have access to our own data and so long as you don't change variables this shouldn't hammer the API. Fetching 100 entries would be equivalent to scrolling the activity timeline for a few minutes. I am not responsible for anything that happens to your access to Fi as a result of using this script. Also since their API is subject to change at any time, this could break unexpectedly.
 
 ## DB Schema
+Before running this app for the first time, you'll need to create a SQLite DB with a file name of fiactivity.db and populate it with the tables in the schema. Probably the easiest way to do this is to use a Python shell and import `sqlite3` and open the non-existent DB file (it will be created automatically) and run the `CREATE TABLE` commands at the top of the Python file. Don't forget to commit your SQL queries and then the DB should be ready.
 ![fischema drawio](https://user-images.githubusercontent.com/24487628/208002347-e3216dc7-fbf2-483c-a5d8-1ca9e6982e1c.svg)
 
 ## Data Structure
