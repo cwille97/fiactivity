@@ -136,7 +136,7 @@ def dump_data_to_sqlite(data: dict):
 
 def activity_exists(activity_id: str, cur: sqlite3.Cursor) -> bool:
     cur.execute(f'SELECT EXISTS(SELECT 1 FROM Activities WHERE activity_id = \"{activity_id}\")')
-    return cur.fetchone()
+    return bool(cur.fetchone()[0])
 
 def fetch_activities():
     email = os.environ.get('FI_EMAIL')
