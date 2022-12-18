@@ -102,11 +102,13 @@ def dump_data_to_sqlite(data: dict):
 
                     try:
                         query_str = f'INSERT INTO Locations (activity_id, latitude, longitude) VALUES (\"{item["activity"]["id"]}\", \"{location["latitude"]}\", \"{location["longitude"]}\");'
+                        logging.info(f'INSERTED a new Activity with ID {item["activity"]["id"]}')
                     except TypeError as e:
                         logging.error(f'Encountered a TypeError while attempting to format a SQL query for an MapMatchedPath. Query was {query_str}, exception was {e}')
                         sys.exit(1)
                     try:
                         cur.execute(query_str)
+                        logging.info(f'INSERTED a new Activity with ID {item["activity"]["id"]}')
                     except sqlite3.ProgrammingError as e:
                         logging.error(f'Encountered an exception while trying to INSERT a new Location. Query was {query_str}, exception was {e}')
                         sys.exit(1)
@@ -123,6 +125,7 @@ def dump_data_to_sqlite(data: dict):
                         sys.exit(1)
                     try:
                         cur.execute(query_str)
+                        logging.info(f'INSERTED a new Location belonging to the Activity with ID {item["activity"]["id"]}')
                     except sqlite3.ProgrammingError as e:
                         logging.error(f'Encountered an exception while trying to INSERT a new Location. Query was {query_str}, exception was {e}')
                         sys.exit(1)
@@ -216,7 +219,7 @@ def fetch_activities():
     except UnicodeDecodeError as e:
         logging.error('Encountered an exception while attempting to decode data response to json. Exception looked like %s, data was %s' % e, str(data_response))
         sys.exit(1)
-    
+    logging.info(f'Dumping raw data resonse from the API: {json.dumps(json_content)}')
     return json_content
 
 def main():
