@@ -219,10 +219,11 @@ def fetch_activities():
     except UnicodeDecodeError as e:
         logging.error('Encountered an exception while attempting to decode data response to json. Exception looked like %s, data was %s' % e, str(data_response))
         sys.exit(1)
-    logging.info(f'Dumping raw data resonse from the API: {json.dumps(json_content)}')
+    logging.debug(f'Dumping raw data resonse from the API: {json.dumps(json_content)}')
     return json_content
 
 def main():
+    logging.basicConfig(level=logging.DEBUG) # log all
     json_content = fetch_activities()
     dump_data_to_sqlite(json_content)
 
