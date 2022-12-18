@@ -89,6 +89,7 @@ def dump_data_to_sqlite(data: dict):
                             f'\"{end_time}\", \"{item["activity"].get("areaName")}\", \"{user_name}\", \"{user_id}\", \"{item["activity"]["presentUserString"]}\"' \
                             f', {item["activity"]["totalSteps"]}, {item["activity"]["obfuscated"]}, {item["activity"]["distance"]}, \"{item["pet"]["name"]}\",' \
                             f'\"{item["activity"]["mapUrl"]}\", \"{item["activity"]["mapPath"]["__typename"]}\");'
+                logging.info(f'INSERTED a new Activity with ID {item["activity"]["id"]}')
             except TypeError as e:
                 logging.error(f'Encountered a TypeError while attempting to format a SQL query to create a new Activity: {e}. Item was {json.dumps(item)}')
                 sys.exit(1)
@@ -108,7 +109,7 @@ def dump_data_to_sqlite(data: dict):
                         sys.exit(1)
                     try:
                         cur.execute(query_str)
-                        logging.info(f'INSERTED a new Activity with ID {item["activity"]["id"]}')
+                        logging.info(f'INSERTED a new Location belonging to the Activity with ID {item["activity"]["id"]}')
                     except sqlite3.ProgrammingError as e:
                         logging.error(f'Encountered an exception while trying to INSERT a new Location. Query was {query_str}, exception was {e}')
                         sys.exit(1)
