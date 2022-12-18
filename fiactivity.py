@@ -103,7 +103,6 @@ def dump_data_to_sqlite(data: dict):
 
                     try:
                         query_str = f'INSERT INTO Locations (activity_id, latitude, longitude) VALUES (\"{item["activity"]["id"]}\", \"{location["latitude"]}\", \"{location["longitude"]}\");'
-                        logging.info(f'INSERTED a new Activity with ID {item["activity"]["id"]}')
                     except TypeError as e:
                         logging.error(f'Encountered a TypeError while attempting to format a SQL query for an MapMatchedPath. Query was {query_str}, exception was {e}')
                         sys.exit(1)
@@ -139,7 +138,7 @@ def activity_exists(activity_id: str, cur: sqlite3.Cursor) -> bool:
     cur.execute(f'SELECT EXISTS(SELECT 1 FROM Activities WHERE activity_id = \"{activity_id}\")')
     return bool(cur.fetchone()[0])
 
-def fetch_activities():
+def fetch_activities(cursor: str = "null"):
     email = os.environ.get('FI_EMAIL')
     password = os.environ.get('FI_PASSWORD')
     request_template = {
@@ -149,7 +148,7 @@ def fetch_activities():
             "height": 300,
             "limit": 100, # this is just a lazy arbitrary limit since nobody is going to walk the dog 100 times in each day
             "pagingInstruction": {
-                "cursor": "null",
+                "cursor": cursor,
                 "direction":"BACKWARD"
             },
             "scale":4,
@@ -226,7 +225,10 @@ def fetch_activities():
 def main():
     logging.basicConfig(level=logging.DEBUG) # log all
     json_content = fetch_activities()
-    dump_data_to_sqlite(json_content)
+    # dump_data_to_sqlite(json_content)
+    # while json_content['data']['currentUser']['fiFeed']['pageInfo']['startCursor'] is not None: # you can uncomment this loop to backfill older data
+    #     json_content = fetch_activities(json_content['data']['currentUser']['fiFeed']['pageInfo']['startCursor'])
+    #     dump_data_to_sqlite(json_content)
 
 if __name__ == '__main__':
     main()
