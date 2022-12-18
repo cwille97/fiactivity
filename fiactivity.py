@@ -225,7 +225,7 @@ def fetch_activities(cursor: str = "null"):
 def main():
     logging.basicConfig(level=logging.DEBUG) # log all
     json_content = fetch_activities()
-    # dump_data_to_sqlite(json_content)
+    dump_data_to_sqlite(json_content)
     # while json_content['data']['currentUser']['fiFeed']['pageInfo']['startCursor'] is not None: # you can uncomment this loop to backfill older data
     #     json_content = fetch_activities(json_content['data']['currentUser']['fiFeed']['pageInfo']['startCursor'])
     #     dump_data_to_sqlite(json_content)
